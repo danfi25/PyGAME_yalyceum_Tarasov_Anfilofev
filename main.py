@@ -30,12 +30,21 @@ while run:
     bird_object.draw(screen)
     bird_object.update()
     screen.blit(ground_img, (ground_scroll, 768))
-    ground_scroll -= 4
-    if abs(ground_scroll) > 35:
-        ground_scroll = 0
+
+    if bird.rect.bottom > 768:
+        bird.game_over = True
+        bird.flying = False
+
+    if bird.game_over is False:
+        ground_scroll -= 4
+        if abs(ground_scroll) > 35:
+            ground_scroll = 0
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+        if event.type == pygame.MOUSEBUTTONDOWN and bird.flying is False and bird.game_over is False:
+            bird.flying = True
     pygame.display.update()
 
 pygame.quit()
