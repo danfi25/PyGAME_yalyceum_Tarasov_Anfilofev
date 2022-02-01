@@ -17,12 +17,24 @@ screen_height = 936
 ground_scroll = 0
 pipe_frequency = 1500
 last_pipe = pygame.time.get_ticks() - pipe_frequency
+f = open('score.txt')
+max_score = f.readline()
+score = 0
+pass_pipe = False
 
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Flappy Doom')
+font = pygame.font.SysFont('roboto', 90)
+font1 = pygame.font.SysFont('roboto', 50)
 
 bg = pygame.image.load('resourses/background.png')
 ground_img = pygame.image.load('resourses/ground.png')
+
+
+def draw_text(text, font, text_col, x, y):
+    img = font.render(text, True, text_col)
+    screen.blit(img, (x, y))
+
 
 bird_object = pygame.sprite.Group()
 pipe_object = pygame.sprite.Group()
@@ -36,6 +48,23 @@ while run:
     bird_object.update()
     pipe_object.draw(screen)
     screen.blit(ground_img, (ground_scroll, 768))
+
+    if len(pipe_object) > 0:
+        if bird_object.sprites()[0].rect.left > pipe_object.sprites()[0].rect.left \
+                and bird_object.sprites()[0].rect.right < pipe_object.sprites()[0].rect.right \
+                and pass_pipe is False:
+            pass_pipe = True
+        if pass_pipe is True:
+            if bird_object.sprites()[0].rect.left > pipe_object.sprites()[0].rect.right:
+                score += 1
+                pass_pipe = False
+    draw_text(str(score), font, 'white', int(screen_width / 2), 20)
+    draw_text(f'Hi score: {max_score}', font1, 'white', 20, 5)
+    if score > int(max_score):
+        max_score = score
+    file = open('score.txt', 'w')
+    file.write(f'{max_score}')
+    file.close()
 
     if pygame.sprite.groupcollide(bird_object, pipe_object, False, False) or bird.rect.top < 0:
         bird.game_over = True
