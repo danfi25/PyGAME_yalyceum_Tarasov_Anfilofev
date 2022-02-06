@@ -2,6 +2,8 @@ import pygame
 import BirdClass
 import ClassPipe
 import random
+import ClassRes
+import Screen
 from pygame.locals import *
 
 # --- TARASOV V ---
@@ -12,8 +14,6 @@ run = True
 clock = pygame.time.Clock()
 fps = 60
 
-screen_width = 864
-screen_height = 936
 ground_scroll = 0
 pipe_frequency = 1500
 last_pipe = pygame.time.get_ticks() - pipe_frequency
@@ -22,13 +22,14 @@ max_score = f.readline()
 score = 0
 pass_pipe = False
 
-screen = pygame.display.set_mode((screen_width, screen_height))
+screen = Screen.screen
 pygame.display.set_caption('Flappy Doom')
 font = pygame.font.SysFont('roboto', 90)
 font1 = pygame.font.SysFont('roboto', 50)
 
 bg = pygame.image.load('resourses/background.png')
 ground_img = pygame.image.load('resourses/ground.png')
+button_res = pygame.image.load('resourses/restart_button.png')
 
 
 def draw_text(text, font, text_col, x, y):
@@ -36,10 +37,18 @@ def draw_text(text, font, text_col, x, y):
     screen.blit(img, (x, y))
 
 
+def reset_game():
+    pipe_object.empty()
+    bird.rect.x = 100
+    bird.rect.y = int(Screen.screen_height / 2)
+    return 0
+
+
 bird_object = pygame.sprite.Group()
 pipe_object = pygame.sprite.Group()
-bird = BirdClass.Bird(100, int(screen_height / 2))
+bird = BirdClass.Bird(100, int(Screen.screen_height / 2))
 bird_object.add(bird)
+button_res = ClassRes.Res(Screen.screen_width // 2 - 50, Screen.screen_height // 2 - 100, button_res)
 
 while run:
     clock.tick(fps)
@@ -58,7 +67,7 @@ while run:
             if bird_object.sprites()[0].rect.left > pipe_object.sprites()[0].rect.right:
                 score += 1
                 pass_pipe = False
-    draw_text(str(score), font, 'white', int(screen_width / 2), 20)
+    draw_text(str(score), font, 'white', int(Screen.screen_width / 2), 20)
     draw_text(f'Hi score: {max_score}', font1, 'white', 20, 5)
     if score > int(max_score):
         max_score = score
@@ -77,8 +86,8 @@ while run:
         time_now = pygame.time.get_ticks()
         if time_now - last_pipe > pipe_frequency:
             pipe_height = random.randint(-100, 100)
-            btm_pipe = ClassPipe.Pipe(screen_width, int(screen_height / 2) + pipe_height, -1)
-            top_pipe = ClassPipe.Pipe(screen_width, int(screen_height / 2) + pipe_height, 1)
+            btm_pipe = ClassPipe.Pipe(Screen.screen_width, int(Screen.screen_height / 2) + pipe_height, -1)
+            top_pipe = ClassPipe.Pipe(Screen.screen_width, int(Screen.screen_height / 2) + pipe_height, 1)
             pipe_object.add(btm_pipe)
             pipe_object.add(top_pipe)
             last_pipe = time_now
@@ -89,6 +98,11 @@ while run:
                 ground_scroll = 0
 
         pipe_object.update()
+
+    if bird.game_over is True:
+        if button_res.draw() is True:
+            bird.game_over = False
+            score = reset_game()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
