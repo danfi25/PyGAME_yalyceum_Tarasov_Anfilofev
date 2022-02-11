@@ -5,6 +5,7 @@ import random
 import ClassRes
 import Screen
 from pygame.locals import *
+from pygame import mixer
 
 # --- TARASOV V ---
 
@@ -26,6 +27,9 @@ screen = Screen.screen
 pygame.display.set_caption('Flappy Doom')
 font = pygame.font.SysFont('roboto', 90)
 font1 = pygame.font.SysFont('roboto', 50)
+
+mixer.music.load("resourses/flappy_sound.mp3")
+mixer.music.play(-1)
 
 bg = pygame.image.load('resourses/background.png')
 ground_img = pygame.image.load('resourses/ground.png')
@@ -65,6 +69,8 @@ while run:
             pass_pipe = True
         if pass_pipe is True:
             if bird_object.sprites()[0].rect.left > pipe_object.sprites()[0].rect.right:
+                pipe_sound = mixer.Sound("resourses/pipesound.mp3")
+                pipe_sound.play()
                 score += 1
                 pass_pipe = False
     draw_text(str(score), font, 'white', int(Screen.screen_width / 2), 20)
